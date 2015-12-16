@@ -22,12 +22,20 @@ Refactorings Applied
 - Second: Made a createHeader function to generate a Header row. Pulls keys uniquely from all records to account for incomplete records.
 - Third: Made a createTable method that takes in an array of json data and generates the html table. I made use of the appendChild method to nest child elements inside parent elements, rather than wrapping variable string data with opening and closing element tags.
 - Fourth: Made a createTotalFooter function to create a footer row with calculated total.
+- Fifth: Imported jquery and tablesaw plugin to create a more styled and fully responsive table. Table now stacks neatly on smaller devices.
 
 -->
-<html>
-
+<!DOCTYPE html>
+<html lang="en" class="tablesaw-enhanced">
 <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
     <title>Simple Table Builder</title>
+    <link rel="stylesheet" href="tablesaw.css">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.3/jquery.min.js"></script>
+    <script src="tablesaw.js"></script>
+    <script src="tablesaw-init.js"></script>
 </head>
 
 <body>
@@ -62,23 +70,25 @@ Refactorings Applied
             accountName: 'Education Account',
             amount: 14500,
             status: 'active'
-        },
-        {
-            accountName: 'Dunkin Doughnuts',
-            status: 'test'
         }
     ];
 
     var _table_ = document.createElement('table'),
         _tr_ = document.createElement('tr'),
         _th_ = document.createElement('th'),
-        _td_ = document.createElement('td');
+        _td_ = document.createElement('td'),
+        _thead_ = document.createElement('thead'),
+        _tbody_ = document.createElement('tbody');
 
     var createTable = function(list){
       var table = _table_.cloneNode(false),
-          columns = createHeader(list, table),
+          thead = _thead_.cloneNode(false),
+          tbody = _tbody_.cloneNode(false),
+          columns = createHeader(list, thead),
           total = 0;
 
+      table.appendChild(thead);
+      table.appendChild(tbody);
       for (var i = 0; i < list.length; i++) {
         var tr = _tr_.cloneNode(false);
         for (var j = 0; j < columns.length; j++) {
@@ -87,7 +97,7 @@ Refactorings Applied
           tr.appendChild(td);
           if (columns[j] == "amount" && list[i].hasOwnProperty(columns[j])) {total += list[i][columns[j]]}
         }
-        table.appendChild(tr);
+        tbody.appendChild(tr);
       }
       table.appendChild(createTotalFooter(total));
       return table;
@@ -97,14 +107,14 @@ Refactorings Applied
       var total_tr = _tr_.cloneNode(false),
           total_th = _th_.cloneNode(false),
           total_td = _td_.cloneNode(false);
-      total_td.appendChild(document.createTextNode(total));
       total_th.appendChild(document.createTextNode("Total"));
+      total_td.appendChild(document.createTextNode(total));
       total_tr.appendChild(total_th);
       total_tr.appendChild(total_td);
       return total_tr;
     }
 
-    var createHeader = function(list, table) {
+    var createHeader = function(list, thead) {
       var columnNames = [],
           tr = _tr_.cloneNode(false);
       for (var i = 0; i < list.length; i++){
@@ -117,10 +127,12 @@ Refactorings Applied
           }
         }
       }
-      table.appendChild(tr);
+      thead.appendChild(tr);
       return columnNames;
     };
     document.querySelector('.container').appendChild(createTable(accounts));
+    document.querySelector('table').setAttribute('class', 'tablesaw tablesaw-stack');
+    document.querySelector('table').setAttribute('data-tablesaw-mode', 'stack');
 </script>
 </body>
 

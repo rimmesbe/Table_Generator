@@ -1,0 +1,127 @@
+<!--
+
+Purpose
+========
+Build a HTML table out of json data
+
+Exercise
+==========
+Refactor the code using Web Development best practices.
+
+Notes
+=======
+
+- You are free to use any additional libraries that may be needed to simplify your code
+- Bonus points for styling the page
+- Make a list of refactorings that you have applied as a running list below:
+
+
+Refactorings Applied
+=====================
+- First: Created some generic table elements to clone (_table_, _tr_, etc.)
+- Second: Made a createHeader function to generate a Header row. Pulls keys uniquely from all records to account for incomplete records.
+- Third: Made a createTable method that takes in an array of json data and generates the html table. I made use of the appendChild method to nest child elements inside parent elements, rather than wrapping variable string data with opening and closing element tags.
+- Fourth: Made a createTotalFooter function to create a footer row with calculated total.
+
+-->
+<html>
+
+<head>
+    <title>Simple Table Builder</title>
+</head>
+
+<body>
+
+<h1>Your Accounts</h1>
+
+<div class="container"></div>
+
+<script>
+    var accounts = [
+        {
+            accountName: 'Checking Account',
+            amount: 15010,
+            status: 'active'
+        },
+        {
+            accountName: 'Savings Account',
+            amount: 55020,
+            status: 'active'
+        },
+        {
+            accountName: 'Travel Fund Account',
+            amount: 25030,
+            status: 'inactive'
+        },
+        {
+            accountName: 'Investment Account',
+            amount: 1500500,
+            status: 'active'
+        },
+        {
+            accountName: 'Education Account',
+            amount: 14500,
+            status: 'active'
+        },
+        {
+            accountName: 'Dunkin Doughnuts',
+            status: 'test'
+        }
+    ];
+
+    var _table_ = document.createElement('table'),
+        _tr_ = document.createElement('tr'),
+        _th_ = document.createElement('th'),
+        _td_ = document.createElement('td');
+
+    var createTable = function(list){
+      var table = _table_.cloneNode(false),
+          columns = createHeader(list, table),
+          total = 0;
+
+      for (var i = 0; i < list.length; i++) {
+        var tr = _tr_.cloneNode(false);
+        for (var j = 0; j < columns.length; j++) {
+          var td = _td_.cloneNode(false);
+          td.appendChild(document.createTextNode(list[i][columns[j]] || ''));
+          tr.appendChild(td);
+          if (columns[j] == "amount" && list[i].hasOwnProperty(columns[j])) {total += list[i][columns[j]]}
+        }
+        table.appendChild(tr);
+      }
+      table.appendChild(createTotalFooter(total));
+      return table;
+    };
+
+    var createTotalFooter = function(total) {
+      var total_tr = _tr_.cloneNode(false),
+          total_th = _th_.cloneNode(false),
+          total_td = _td_.cloneNode(false);
+      total_td.appendChild(document.createTextNode(total));
+      total_th.appendChild(document.createTextNode("Total"));
+      total_tr.appendChild(total_th);
+      total_tr.appendChild(total_td);
+      return total_tr;
+    }
+
+    var createHeader = function(list, table) {
+      var columnNames = [],
+          tr = _tr_.cloneNode(false);
+      for (var i = 0; i < list.length; i++){
+        for (var key in list[i]) {
+          if (columnNames.indexOf(key)===-1) {
+            columnNames.push(key);
+            var th = _th_.cloneNode(false);
+            th.appendChild(document.createTextNode(key));
+            tr.appendChild(th);
+          }
+        }
+      }
+      table.appendChild(tr);
+      return columnNames;
+    };
+    document.querySelector('.container').appendChild(createTable(accounts));
+</script>
+</body>
+
+</html>
